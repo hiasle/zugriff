@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>zugriff</artifactId>
+        <groupId>at.gv.brz.justiz3.elias</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>zugriff-ui</artifactId>
+
+    <properties>
+        <angular.package.script>package.all.prod</angular.package.script>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>angular-verify</id>
+            <properties>
+                <angular.package.script>build.prod</angular.package.script>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <finalName>at.gv.brz.justiz3.elias.zugriff-ui</finalName>
+
+        <plugins>
+            <plugin>
+                <!--
+                To be able to use Node.js and npm  to build the frontend without installing Node/NPM globally
+                on the build system. Also ensures that the node/npm version is the same in every build environment
+
+                Node/npm will only be "installed" locally to the project. It will not be installed globally on the
+                whole system (and it will not interfere with any Node/npm installations already present)
+
+                https://github.com/eirslett/frontend-maven-plugin#frontend-maven-plugin
+                -->
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.7.5</version>
+
+                <configuration>
+                    <nodeVersion>v12.18.1</nodeVersion>
+                    <npmVersion>6.14.7</npmVersion>
+
+                    <!--the directory with the package.json-->
+                    <workingDirectory>${project.basedir}</workingDirectory>
+
+                    <!-- The installation directory is the folder where node and npm are installed. -->
+                    <installDirectory>target/temp-node-install</installDirectory>
+
+                    <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
+                    <nodeDownloadRoot>https://centralrepo.brz.gv.at/artifactory/nodejs-dist-mirror-cache/
+                    </nodeDownloadRoot>
+                    <npmDownloadRoot>https://centralrepo.brz.gv.at/artifactory/npm-npmjs-cache/npm/-/</npmDownloadRoot>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <!-- default phase is "generate-resources" -->
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>npm version</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>--no-git-tag-version --allow-same-version version ${project.version}</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm install</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <!-- optional: The default argument is actually
+                            "install", added for consistency/readability -->
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm run package.all</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run ${angular.package.script}</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm run test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run test</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--copy the built angular resources to the /src/main/resources/static folder where spring expects them by default-->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-zugriff-app-to-static</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/static/zugriff-ui</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>dist/zugriff-ui/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
