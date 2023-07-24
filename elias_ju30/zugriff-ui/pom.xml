@@ -53,9 +53,9 @@
                     <installDirectory>target/temp-node-install</installDirectory>
 
                     <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
-                    <nodeDownloadRoot>https://centralrepo.brz.gv.at/artifactory/nodejs-dist-mirror-cache/
+                    <!-- <nodeDownloadRoot>https://centralrepo.brz.gv.at/artifactory/nodejs-dist-mirror-cache/
                     </nodeDownloadRoot>
-                    <npmDownloadRoot>https://centralrepo.brz.gv.at/artifactory/npm-npmjs-cache/npm/-/</npmDownloadRoot>
+                    <npmDownloadRoot>https://centralrepo.brz.gv.at/artifactory/npm-npmjs-cache/npm/-/</npmDownloadRoot> -->
                 </configuration>
 
                 <executions>
